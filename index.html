@@ -30,6 +30,17 @@
         .num6 { color: teal; }
         .num7 { color: black; }
         .num8 { color: gray; }
+
+        .hidden  {
+            background-color: lightgray;
+            color: transparent;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tile:not(.hidden) {
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +77,7 @@
                 const tileCol = document.createElement("td");
                 const tileId = row * totalColumn + col + 1;
                 tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "💣": "";
-                tileCol.className = "tile";
+                tileCol.className = "tile hidden";
                 tileRow.appendChild(tileCol);
             }
             tileArea.appendChild(tileRow);
@@ -104,6 +115,13 @@
                 tileList[idx].classList.add(`num${bombNearby}`);
             }
         }
+
+        // Reveal tile on click
+        tileList.forEach(tile => {
+            tile.addEventListener("click", function(){
+                this.classList.remove("hidden");
+            });
+        });
     </script>
 </body>
 </html>
