@@ -51,9 +51,10 @@
         const totalRow = 10;
         const totalColumn = 8;
         const tileArea = document.querySelector(".tile-area");
-        const totalBomb = 12;
+        const totalBomb = 10;
 
         let isFirstClick = true;
+        let gameOver = false;
 
         /** @param {Array} array */
         function shuffle(array){
@@ -141,8 +142,13 @@
             }
 
             tileList.forEach((tile, idx) => {
-                tile.addEventListener("click", function(){
-                    if (isFirstClick) return;
+                tile.addEventListener("click", function clickHandler(){
+                    if (isFirstClick || gameOver) return;
+                    if (tileList[idx].textContent === "💣") {
+                        bombTiles.forEach(bidx => revealTile(bidx))
+                        gameOver = true;
+                        return;
+                    }
                     revealTile(idx);
                 });
             });
