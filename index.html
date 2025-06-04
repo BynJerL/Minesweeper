@@ -65,7 +65,7 @@
             for (let col = 0; col < totalColumn; col++) {
                 const tileCol = document.createElement("td");
                 const tileId = row * totalColumn + col + 1;
-                tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "B": "";
+                tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "💣": "";
                 tileCol.className = "tile";
                 tileRow.appendChild(tileCol);
             }
@@ -78,7 +78,7 @@
             for (let col = 0; col < totalColumn; col++) {
                 const idx = row * totalColumn + col;
                 
-                if (tileList[idx].textContent === "B") {
+                if (tileList[idx].textContent === "💣") {
                     tileList[idx].classList.add("bomb");
                     continue;
                 }
@@ -94,7 +94,7 @@
                     for (let scol = startCol; scol <= endCol; scol++) {
                         const sidx = srow * totalColumn + scol;
 
-                        if (tileList[sidx].textContent === "B") {
+                        if (tileList[sidx].textContent === "💣") {
                             bombNearby++;
                         }
                     }
