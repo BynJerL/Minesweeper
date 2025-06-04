@@ -6,8 +6,22 @@
     <title>Minesweeper</title>
 </head>
 <body>
+    <table class="tiles"></table>
+
     <script>
-        
+        const totalRow = 5;
+        const totalColumn = 5;
+        const tileArea = document.querySelector(".tiles");
+
+        for (let row = 0; row < totalRow; row++) {
+            const tileRow = document.createElement("tr");
+            for (let col = 0; col < totalColumn; col++) {
+                const tileCol = document.createElement("td");
+                tileCol.textContent = row * totalColumn + col + 1;
+                tileRow.appendChild(tileCol);
+            }
+            tileArea.appendChild(tileRow);
+        }
     </script>
 </body>
 </html>
