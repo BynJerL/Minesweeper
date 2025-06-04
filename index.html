@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper</title>
     <style>
-        td {
+        .tile {
             width: 30px;
             height: 30px;
             border: 1px solid black;
@@ -14,12 +14,12 @@
     </style>
 </head>
 <body>
-    <table class="tiles"></table>
+    <table class="tile-area"></table>
 
     <script>
         const totalRow = 5;
         const totalColumn = 5;
-        const tileArea = document.querySelector(".tiles");
+        const tileArea = document.querySelector(".tile-area");
         const totalBomb = 3;
 
         var tileNumbers = [];
@@ -40,15 +40,48 @@
         tileNumbers = shuffle(tileNumbers);
         console.log(tileNumbers);
 
+        // Tile initialization
         for (let row = 0; row < totalRow; row++) {
             const tileRow = document.createElement("tr");
             for (let col = 0; col < totalColumn; col++) {
                 const tileCol = document.createElement("td");
-                const tileId = row * totalColumn + col + 1
+                const tileId = row * totalColumn + col + 1;
                 tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "B": "";
+                tileCol.className = "tile";
                 tileRow.appendChild(tileCol);
             }
             tileArea.appendChild(tileRow);
+        }
+
+        // Tile scanning
+        const tileList = document.querySelectorAll(".tile");
+        for (let row = 0; row < totalRow; row++) {
+            for (let col = 0; col < totalColumn; col++) {
+                const idx = row * totalColumn + col;
+                
+                if (tileList[idx].textContent === "B") {
+                    continue
+                }
+
+                const startRow = (row === 0)? 0: row - 1;
+                const startCol = (col === 0)? 0: col - 1;
+                const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
+                const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
+
+                let bombNearby = 0;
+
+                for (let srow = startRow; srow <= endRow; srow++) {
+                    for (let scol = startCol; scol <= endCol; scol++) {
+                        const sidx = srow * totalColumn + scol;
+
+                        if (tileList[sidx].textContent === "B") {
+                            bombNearby++;
+                        }
+                    }
+                }
+
+                tileList[idx].textContent = (bombNearby)? bombNearby: "";
+            }
         }
     </script>
 </body>
