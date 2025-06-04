@@ -116,10 +116,37 @@
             }
         }
 
+        function revealTile(idx) {
+            if (!tileList[idx].classList.contains("hidden")) return;
+
+            tileList[idx].classList.remove("hidden");
+
+            if (tileList[idx].textContent === "") {
+                const row = Math.floor(idx / totalColumn);
+                const col = idx % totalColumn;
+
+                const startRow = (row === 0)? 0: row - 1;
+                const startCol = (col === 0)? 0: col - 1;
+                const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
+                const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
+
+                for (let srow = startRow; srow <= endRow; srow++) {
+                    for (let scol = startCol; scol <= endCol; scol++) {
+                        const sidx = srow * totalColumn + scol;
+
+                        if (tileList[sidx].textContent !== "💣") {
+                            revealTile(sidx);
+                        }
+                    }
+                }
+            }
+        }
+
         // Reveal tile on click
-        tileList.forEach(tile => {
+        tileList.forEach((tile, idx) => {
             tile.addEventListener("click", function(){
-                this.classList.remove("hidden");
+                // this.classList.remove("hidden");
+                revealTile(idx);
             });
         });
     </script>
