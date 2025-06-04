@@ -44,6 +44,7 @@
     </style>
 </head>
 <body>
+    <div>Total Bombs: <span id="bomb-count"></span></div>
     <table class="tile-area"></table>
 
     <script>
@@ -175,6 +176,7 @@
         }
 
         generateEmptyBoard();
+        document.getElementById("bomb-count").textContent = totalBomb;
         tileArea.addEventListener("click", function handler(e) {
             if (e.target.classList.contains("tile")) {
                 const idx = Array.from(tileArea.querySelectorAll(".tile")).indexOf(e.target);
