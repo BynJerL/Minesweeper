@@ -47,12 +47,11 @@
     <table class="tile-area"></table>
 
     <script>
-        const totalRow = 8;
+        const totalRow = 10;
         const totalColumn = 8;
         const tileArea = document.querySelector(".tile-area");
-        const totalBomb = 10;
+        const totalBomb = 12;
 
-        var tileNumbers = [];
         let isFirstClick = true;
 
         /** @param {Array} array */
@@ -64,17 +63,43 @@
             return array;
         }
 
-        function initializeTileArea () {
+        function generateEmptyBoard() {
+            tileArea.innerHTML = "";
+            for (let row = 0; row < totalRow; row++) {
+                const tileRow = document.createElement("tr");
+                for (let col = 0; col < totalColumn; col++) {
+                    const tileCol = document.createElement("td");
+                    tileCol.className = "tile hidden";
+                    tileRow.appendChild(tileCol);
+                }
+                tileArea.appendChild(tileRow);
+            }
+        }
+
+        function initializeTileArea (safeIdx) {
+            let safeTiles = [];
+            const iRow = Math.floor(safeIdx / totalColumn);
+            const iCol = safeIdx % totalColumn;
+
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const r = iRow + dr, c = iCol + dc;
+                    if (r >= 0 && r < totalRow && c >= 0 && c < totalColumn) {
+                        safeTiles.push(r * totalColumn + c);
+                    }
+                }
+            }
+            
             let tileNumbers = [];
-            for (let num = 1; num <= totalRow * totalColumn; num++) tileNumbers.push(num);
-            bombTiles = shuffle(tileNumbers).slice(0, totalBomb);
+            for (let num = 0; num < totalRow * totalColumn; num++) tileNumbers.push(num);
+            bombTiles = shuffle(tileNumbers.filter(i => !safeTiles.includes(i))).slice(0, totalBomb);
 
             tileArea.innerHTML = "";
             for (let row = 0; row < totalRow; row++) {
                 const tileRow = document.createElement("tr");
                 for (let col = 0; col < totalColumn; col++) {
                     const tileCol = document.createElement("td");
-                    const tileId = row * totalColumn + col + 1;
+                    const tileId = row * totalColumn + col;
                     tileCol.textContent = (bombTiles.includes(tileId))? "💣": "";
                     tileCol.className = "tile hidden";
                     tileRow.appendChild(tileCol);
@@ -149,14 +174,16 @@
             }
         }
 
-        isFirstClick = false;
-        initializeTileArea();
-
-        // tileArea.addEventListener("click", function handler(e) {
-        //     if (e.target.classList.contains("tile")) {
-        //         const idx = Array.from(tileArea.querySelector())
-        //     }
-        // });
+        generateEmptyBoard();
+        tileArea.addEventListener("click", function handler(e) {
+            if (e.target.classList.contains("tile")) {
+                const idx = Array.from(tileArea.querySelectorAll(".tile")).indexOf(e.target);
+                initializeTileArea(idx);
+                isFirstClick = false;
+                revealTile(idx);
+                tileArea.removeEventListener("click", handler);
+            }
+        });
     </script>
 </body>
 </html>
