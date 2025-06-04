@@ -20,12 +20,32 @@
         const totalRow = 5;
         const totalColumn = 5;
         const tileArea = document.querySelector(".tiles");
+        const totalBomb = 3;
+
+        var tileNumbers = [];
+
+        /** @param {Array} array */
+        function shuffle(array){
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[j], array[i]] = [array[i], array[j]];
+            }
+            return array;
+        }
+
+        for (let num = 1; num <= totalRow * totalColumn; num++) {
+            tileNumbers.push(num);
+        }
+
+        tileNumbers = shuffle(tileNumbers);
+        console.log(tileNumbers);
 
         for (let row = 0; row < totalRow; row++) {
             const tileRow = document.createElement("tr");
             for (let col = 0; col < totalColumn; col++) {
                 const tileCol = document.createElement("td");
-                tileCol.textContent = row * totalColumn + col + 1;
+                const tileId = row * totalColumn + col + 1
+                tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "B": "";
                 tileRow.appendChild(tileCol);
             }
             tileArea.appendChild(tileRow);
