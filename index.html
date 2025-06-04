@@ -5,20 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper</title>
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         .tile {
             width: 30px;
             height: 30px;
             border: 1px solid black;
+            font-weight: 700;
             text-align: center;
         }
+
+        .bomb {
+            background-color: red;
+        }
+
+        /* Number colors */
+        .num1 { color: blue; }
+        .num2 { color: green; }
+        .num3 { color: red; }
+        .num4 { color: navy; }
+        .num5 { color: brown; }
+        .num6 { color: teal; }
+        .num7 { color: black; }
+        .num8 { color: gray; }
     </style>
 </head>
 <body>
     <table class="tile-area"></table>
 
     <script>
-        const totalRow = 10;
-        const totalColumn = 10;
+        const totalRow = 8;
+        const totalColumn = 8;
         const tileArea = document.querySelector(".tile-area");
         const totalBomb = 10;
 
@@ -60,7 +79,8 @@
                 const idx = row * totalColumn + col;
                 
                 if (tileList[idx].textContent === "B") {
-                    continue
+                    tileList[idx].classList.add("bomb");
+                    continue;
                 }
 
                 const startRow = (row === 0)? 0: row - 1;
@@ -81,6 +101,7 @@
                 }
 
                 tileList[idx].textContent = (bombNearby)? bombNearby: "";
+                tileList[idx].classList.add(`num${bombNearby}`);
             }
         }
     </script>
