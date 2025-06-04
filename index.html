@@ -53,6 +53,7 @@
         const totalBomb = 10;
 
         var tileNumbers = [];
+        let isFirstClick = true;
 
         /** @param {Array} array */
         function shuffle(array){
@@ -63,60 +64,66 @@
             return array;
         }
 
-        for (let num = 1; num <= totalRow * totalColumn; num++) {
-            tileNumbers.push(num);
-        }
+        function initializeTileArea () {
+            let tileNumbers = [];
+            for (let num = 1; num <= totalRow * totalColumn; num++) tileNumbers.push(num);
+            bombTiles = shuffle(tileNumbers).slice(0, totalBomb);
 
-        tileNumbers = shuffle(tileNumbers);
-        console.log(tileNumbers);
-
-        // Tile initialization
-        for (let row = 0; row < totalRow; row++) {
-            const tileRow = document.createElement("tr");
-            for (let col = 0; col < totalColumn; col++) {
-                const tileCol = document.createElement("td");
-                const tileId = row * totalColumn + col + 1;
-                tileCol.textContent = (tileNumbers.slice(0, totalBomb).includes(tileId))? "💣": "";
-                tileCol.className = "tile hidden";
-                tileRow.appendChild(tileCol);
-            }
-            tileArea.appendChild(tileRow);
-        }
-
-        // Tile scanning
-        const tileList = document.querySelectorAll(".tile");
-        for (let row = 0; row < totalRow; row++) {
-            for (let col = 0; col < totalColumn; col++) {
-                const idx = row * totalColumn + col;
-                
-                if (tileList[idx].textContent === "💣") {
-                    tileList[idx].classList.add("bomb");
-                    continue;
+            tileArea.innerHTML = "";
+            for (let row = 0; row < totalRow; row++) {
+                const tileRow = document.createElement("tr");
+                for (let col = 0; col < totalColumn; col++) {
+                    const tileCol = document.createElement("td");
+                    const tileId = row * totalColumn + col + 1;
+                    tileCol.textContent = (bombTiles.includes(tileId))? "💣": "";
+                    tileCol.className = "tile hidden";
+                    tileRow.appendChild(tileCol);
                 }
+                tileArea.appendChild(tileRow);
+            }
 
-                const startRow = (row === 0)? 0: row - 1;
-                const startCol = (col === 0)? 0: col - 1;
-                const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
-                const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
+            let tileList = document.querySelectorAll(".tile");
+            for (let row = 0; row < totalRow; row++) {
+                for (let col = 0; col < totalColumn; col++) {
+                    const idx = row * totalColumn + col;
+                    
+                    if (tileList[idx].textContent === "💣") {
+                        tileList[idx].classList.add("bomb");
+                        continue;
+                    }
 
-                let bombNearby = 0;
+                    const startRow = (row === 0)? 0: row - 1;
+                    const startCol = (col === 0)? 0: col - 1;
+                    const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
+                    const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
 
-                for (let srow = startRow; srow <= endRow; srow++) {
-                    for (let scol = startCol; scol <= endCol; scol++) {
-                        const sidx = srow * totalColumn + scol;
+                    let bombNearby = 0;
 
-                        if (tileList[sidx].textContent === "💣") {
-                            bombNearby++;
+                    for (let srow = startRow; srow <= endRow; srow++) {
+                        for (let scol = startCol; scol <= endCol; scol++) {
+                            const sidx = srow * totalColumn + scol;
+
+                            if (tileList[sidx].textContent === "💣") {
+                                bombNearby++;
+                            }
                         }
                     }
-                }
 
-                tileList[idx].textContent = (bombNearby)? bombNearby: "";
-                tileList[idx].classList.add(`num${bombNearby}`);
+                    tileList[idx].textContent = (bombNearby)? bombNearby: "";
+                    tileList[idx].classList.add(`num${bombNearby}`);
+                }
             }
+
+            tileList.forEach((tile, idx) => {
+                tile.addEventListener("click", function(){
+                    if (isFirstClick) return;
+                    revealTile(idx);
+                });
+            });
         }
 
         function revealTile(idx) {
+            let tileList = document.querySelectorAll(".tile");
             if (!tileList[idx].classList.contains("hidden")) return;
 
             tileList[idx].classList.remove("hidden");
@@ -142,13 +149,14 @@
             }
         }
 
-        // Reveal tile on click
-        tileList.forEach((tile, idx) => {
-            tile.addEventListener("click", function(){
-                // this.classList.remove("hidden");
-                revealTile(idx);
-            });
-        });
+        isFirstClick = false;
+        initializeTileArea();
+
+        // tileArea.addEventListener("click", function handler(e) {
+        //     if (e.target.classList.contains("tile")) {
+        //         const idx = Array.from(tileArea.querySelector())
+        //     }
+        // });
     </script>
 </body>
 </html>
