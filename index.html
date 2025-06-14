@@ -76,6 +76,14 @@
                 this.mode = mode;
             },
 
+            checkState() {
+                const hiddenTiles = this.tileList.filter(tile => tile.classList.contains("hidden"));
+                if (hiddenTiles.length === this.totalBomb) {
+                    this.isGameOver = true;
+                    this.isPlayerWin = true;
+                }
+            },
+
             setBoardData () {
                 switch (this.mode) {
                     case "beginner":
@@ -118,6 +126,7 @@
                             return;
                         }
                         this.revealTile(idx);
+                        this.checkState();
                     });
                 });
             },
@@ -243,6 +252,7 @@
             }
         };
 
+        GameManager.setMode("beginner");
         GameManager.start();
     </script>
 </body>
