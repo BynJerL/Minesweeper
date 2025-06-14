@@ -15,6 +15,8 @@
             border: 1px solid black;
             font-weight: 700;
             text-align: center;
+            position: relative;
+            user-select: none;
         }
 
         .bomb {
@@ -35,7 +37,6 @@
             background-color: lightgray;
             color: transparent;
             cursor: pointer;
-            user-select: none;
         }
 
         .tile:not(.hidden) {
@@ -71,6 +72,21 @@
             height: 40px;
             font-size: 20px;
         }
+
+        .flag {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; /* So left click still works */
+            z-index: 2;
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -100,12 +116,12 @@
             totalRow: 9,
             totalCol: 9,
             totalBomb: 10,
+            totalFlag: 0,
             isFirstClick: true,
             isGameOver: false,
             isPlayerWin: false,
             startTiles: [],
             bombTiles: [],
-            flagTiles: [],
             tileList: [],
 
             /** @param {string} mode*/ 
@@ -115,7 +131,7 @@
 
             displayBombCount () {
                 const bombDisplay = document.getElementById("bomb-display");
-                const bombCount = this.totalBomb - this.flagTiles.length;
+                const bombCount = this.totalBomb - this.totalFlag;
 
                 let text = "";
                 if (bombCount >= 0 && bombCount < 10) {
@@ -174,6 +190,7 @@
                 this.tileList.forEach((tile, idx) => {
                     tile.addEventListener("click", (e) => {
                         if (this.isFirstClick || this.isGameOver) return;
+                        if (tile.querySelector('.flag')) return;
                         if (this.tileList[idx].classList.contains("bomb")) {
                             this.bombTiles.forEach(bidx => this.revealTile(bidx))
                             this.isGameOver = true;
@@ -182,6 +199,25 @@
                         }
                         this.revealTile(idx);
                         this.checkState();
+                    });
+
+                    tile.addEventListener("contextmenu", (e) => {
+                        e.preventDefault();
+                        if (this.isGameOver) return;
+                        if (!tile.classList.contains("hidden")) return;
+
+                        let flag = tile.querySelector('.flag');
+                        if (flag) {
+                            this.totalFlag--;
+                            flag.remove();
+                        }  else {
+                            this.totalFlag++;
+                            const flagSpan = document.createElement('span');
+                            flagSpan.className = 'flag';
+                            flagSpan.textContent = '🚩';
+                            tile.appendChild(flagSpan);
+                        }
+                        this.displayBombCount();
                     });
                 });
             },
@@ -292,6 +328,9 @@
 
             start() {
                 this.isFirstClick = true;
+                this.isGameOver = false;
+                this.isPlayerWin = false;
+                this.totalFlag = 0;
                 this.setBoardData();
                 this.generateEmptyBoard();
                 this.displayBombCount();
