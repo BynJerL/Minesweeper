@@ -307,6 +307,7 @@
             revealTile(idx) {
                 const currentTile = this.tileList[idx];
                 if (!currentTile.classList.contains("hidden")) return;
+                if(currentTile.querySelector(".flag")) return;
 
                 currentTile.classList.remove("hidden");
 
