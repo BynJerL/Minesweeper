@@ -106,6 +106,7 @@
             isPlayerWin: false,
             startTiles: [],
             bombTiles: [],
+            flagTiles: [],
             tileList: [],
 
             /** @param {string} mode*/ 
@@ -113,7 +114,25 @@
                 this.mode = mode;
             },
 
-            checkState() {
+            displayBombCount () {
+                const bombDisplay = document.getElementById("bomb-display");
+                const bombCount = this.totalBomb - this.flagTiles.length;
+
+                let text = "";
+                if (bombCount >= 0 && bombCount < 10) {
+                    text = `00${bombCount}`;
+                } else if (bombCount < 100) {
+                    text = `0${bombCount}`;
+                } else if (bombCount > -10) {
+                    text = `-0${-bombCount}`;
+                } else {
+                    text = bombCount;
+                }
+
+                bombDisplay.textContent = text;
+            },
+
+            checkState () {
                 const hiddenTiles = this.tileList.filter(tile => tile.classList.contains("hidden"));
                 if (hiddenTiles.length === this.totalBomb) {
                     this.isGameOver = true;
@@ -275,7 +294,7 @@
             start() {
                 this.setBoardData();
                 this.generateEmptyBoard();
-                document.getElementById("bomb-count").textContent = this.totalBomb;
+                this.displayBombCount();
 
                 this.tileList.forEach((tile, idx) => {
                     tile.addEventListener("click", (e) => {
@@ -289,7 +308,7 @@
             }
         };
 
-        GameManager.setMode("beginner");
+        GameManager.setMode("easy");
         GameManager.start();
     </script>
 </body>
