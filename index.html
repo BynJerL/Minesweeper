@@ -152,6 +152,16 @@
                 if (hiddenTiles.length === this.totalBomb) {
                     this.isGameOver = true;
                     this.isPlayerWin = true;
+                    hiddenTiles.forEach(tile => {
+                        if (!tile.querySelector(".flag")) {
+                            const flagSpan = document.createElement('span');
+                            flagSpan.className = 'flag';
+                            flagSpan.textContent = '🚩';
+                            tile.appendChild(flagSpan);
+                        }
+                    });
+                    this.totalFlag = this.totalBomb;
+                    this.displayBombCount();
                 }
             },
 
@@ -351,7 +361,7 @@
             GameManager.start();
         });
 
-        GameManager.setMode("easy");
+        GameManager.setMode("beginner");
         GameManager.start();
     </script>
 </body>
