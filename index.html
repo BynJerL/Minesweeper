@@ -48,13 +48,7 @@
     <table class="tile-area"></table>
 
     <script>
-        const totalRow = 10;
-        const totalColumn = 8;
         const tileArea = document.querySelector(".tile-area");
-        const totalBomb = 10;
-
-        let isFirstClick = true;
-        let gameOver = false;
 
         /** @param {Array} array */
         function shuffle(array){
@@ -65,133 +59,191 @@
             return array;
         }
 
-        function generateEmptyBoard() {
-            tileArea.innerHTML = "";
-            for (let row = 0; row < totalRow; row++) {
-                const tileRow = document.createElement("tr");
-                for (let col = 0; col < totalColumn; col++) {
-                    const tileCol = document.createElement("td");
-                    tileCol.className = "tile hidden";
-                    tileRow.appendChild(tileCol);
+        const GameManager = {
+            mode: "easy",
+            totalRow: 9,
+            totalCol: 9,
+            totalBomb: 10,
+            isFirstClick: true,
+            isGameOver: false,
+            isPlayerWin: false,
+            startTiles: [],
+            bombTiles: [],
+            tileList: [],
+
+            /** @param {string} mode*/ 
+            setMode (mode) {
+                this.mode = mode;
+            },
+
+            setBoardData () {
+                switch (this.mode) {
+                    case "beginner":
+                        [this.totalRow, this.totalCol, this.totalBomb] = [8, 8, 10];
+                        break;
+                    case "easy":
+                        [this.totalRow, this.totalCol, this.totalBomb] = [10, 10, 16];
+                        break;
+                    case "intermediate":
+                        [this.totalRow, this.totalCol, this.totalBomb] = [16, 16, 40];
+                        break;
+                    case "expert":
+                        [this.totalRow, this.totalCol, this.totalBomb] = [16, 30, 99];
+                        break;
                 }
-                tileArea.appendChild(tileRow);
-            }
-        }
+            },
 
-        function initializeTileArea (safeIdx) {
-            let safeTiles = [];
-            const iRow = Math.floor(safeIdx / totalColumn);
-            const iCol = safeIdx % totalColumn;
+            generateEmptyBoard () {
+                tileArea.innerHTML = "";
+                for (let row = 0; row < this.totalRow; row++) {
+                    const tileRow = document.createElement("tr");
+                    for (let col = 0; col < this.totalCol; col++) {
+                        const tileCol = document.createElement("td");
+                        tileCol.className = "tile hidden";
+                        tileCol.setAttribute("data-row", row);
+                        tileCol.setAttribute("data-col", col);
+                        tileRow.appendChild(tileCol);
+                    }
+                    tileArea.appendChild(tileRow);
+                }
+                this.tileList = Array.from(tileArea.querySelectorAll(".tile"));
 
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    const r = iRow + dr, c = iCol + dc;
-                    if (r >= 0 && r < totalRow && c >= 0 && c < totalColumn) {
-                        safeTiles.push(r * totalColumn + c);
+                this.tileList.forEach((tile, idx) => {
+                    tile.addEventListener("click", (e) => {
+                        if (this.isFirstClick || this.isGameOver) return;
+                        if (this.tileList[idx].classList.contains("bomb")) {
+                            this.bombTiles.forEach(bidx => this.revealTile(bidx))
+                            this.isGameOver = true;
+                            this.isPlayerWin = false;
+                            return;
+                        }
+                        this.revealTile(idx);
+                    });
+                });
+            },
+
+            setStartTiles (row, col) {
+                this.startTiles = [];
+                const refRow = row, 
+                refCol = col;
+
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const r = refRow + dr, 
+                        c = refCol + dc;
+                        if (r >= 0 &&
+                            r < this.totalRow && 
+                            c >= 0 && 
+                            c < this.totalCol) {
+                            this.startTiles.push(r * this.totalCol + c);
+                        }
                     }
                 }
-            }
-            
-            let tileNumbers = [];
-            for (let num = 0; num < totalRow * totalColumn; num++) tileNumbers.push(num);
-            bombTiles = shuffle(tileNumbers.filter(i => !safeTiles.includes(i))).slice(0, totalBomb);
+            },
 
-            tileArea.innerHTML = "";
-            for (let row = 0; row < totalRow; row++) {
-                const tileRow = document.createElement("tr");
-                for (let col = 0; col < totalColumn; col++) {
-                    const tileCol = document.createElement("td");
-                    const tileId = row * totalColumn + col;
-                    tileCol.textContent = (bombTiles.includes(tileId))? "💣": "";
-                    tileCol.className = "tile hidden";
-                    tileRow.appendChild(tileCol);
-                }
-                tileArea.appendChild(tileRow);
-            }
+            setBombTiles () {
+                let tileNumbers = [];
+                for (let num = 0; num < this.totalRow * this.totalCol; num++) tileNumbers.push(num);
+                this.bombTiles = shuffle(tileNumbers.filter(i => !this.startTiles.includes(i))).slice(0, this.totalBomb);
 
-            let tileList = document.querySelectorAll(".tile");
-            for (let row = 0; row < totalRow; row++) {
-                for (let col = 0; col < totalColumn; col++) {
-                    const idx = row * totalColumn + col;
-                    
-                    if (tileList[idx].textContent === "💣") {
-                        tileList[idx].classList.add("bomb");
-                        continue;
+                this.tileList.forEach((tile, idx) => {
+                    const dCol = parseInt(tile.getAttribute("data-col")),
+                          dRow = parseInt(tile.getAttribute("data-row"));
+                    const dIdx = dRow * this.totalCol + dCol;
+                    if (idx !== dIdx) {
+                        // error function
+                        return;
                     }
 
-                    const startRow = (row === 0)? 0: row - 1;
-                    const startCol = (col === 0)? 0: col - 1;
-                    const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
-                    const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
+                    if (this.bombTiles.includes(dIdx)) {
+                        tile.classList.add("bomb");
+                        tile.textContent = "⚫";
+                    } else {
+                        tile.classList.remove("bomb");
+                        tile.textContent = "";
+                    }
+                });
+
+                this.tileList.forEach(tile => {
+                    if (tile.classList.contains("bomb")) return;
+
+                    const dCol = parseInt(tile.getAttribute("data-col")),
+                          dRow = parseInt(tile.getAttribute("data-row"));
+                    const startRow = (dRow === 0)? 0: dRow - 1;
+                    const startCol = (dCol === 0)? 0: dCol - 1;
+                    const endRow = (dRow === this.totalRow - 1)? dRow: dRow + 1;
+                    const endCol = (dCol === this.totalCol - 1)? dCol: dCol + 1; 
 
                     let bombNearby = 0;
 
-                    for (let srow = startRow; srow <= endRow; srow++) {
-                        for (let scol = startCol; scol <= endCol; scol++) {
-                            const sidx = srow * totalColumn + scol;
+                    for (let row = startRow; row <= endRow; row++) {
+                        for (let col = startCol; col <= endCol; col++) {
+                            const sidx = row * this.totalCol + col;
 
-                            if (tileList[sidx].textContent === "💣") {
+                            if (this.tileList[sidx].classList.contains("bomb")) {
                                 bombNearby++;
                             }
                         }
                     }
 
-                    tileList[idx].textContent = (bombNearby)? bombNearby: "";
-                    tileList[idx].classList.add(`num${bombNearby}`);
-                }
-            }
-
-            tileList.forEach((tile, idx) => {
-                tile.addEventListener("click", function clickHandler(){
-                    if (isFirstClick || gameOver) return;
-                    if (tileList[idx].textContent === "💣") {
-                        bombTiles.forEach(bidx => revealTile(bidx))
-                        gameOver = true;
-                        return;
-                    }
-                    revealTile(idx);
+                    tile.textContent = (bombNearby)? bombNearby: "";
+                    tile.classList.add(`num${bombNearby}`);
                 });
-            });
-        }
+            },
 
-        function revealTile(idx) {
-            let tileList = document.querySelectorAll(".tile");
-            if (!tileList[idx].classList.contains("hidden")) return;
+            revealTile(idx) {
+                const currentTile = this.tileList[idx];
+                if (!currentTile.classList.contains("hidden")) return;
 
-            tileList[idx].classList.remove("hidden");
+                currentTile.classList.remove("hidden");
 
-            if (tileList[idx].textContent === "") {
-                const row = Math.floor(idx / totalColumn);
-                const col = idx % totalColumn;
+                if (currentTile.textContent === "") {
+                    const dRow = parseInt(currentTile.getAttribute("data-row"));
+                    const dCol = parseInt(currentTile.getAttribute("data-col"));
 
-                const startRow = (row === 0)? 0: row - 1;
-                const startCol = (col === 0)? 0: col - 1;
-                const endRow = (row === totalRow - 1)? totalRow - 1: row + 1;
-                const endCol = (col === totalColumn - 1)? totalColumn - 1: col + 1;
+                    const startRow = (dRow === 0)? 0: dRow - 1;
+                    const startCol = (dCol === 0)? 0: dCol - 1;
+                    const endRow = (dRow === this.totalRow - 1)? dRow: dRow + 1;
+                    const endCol = (dCol === this.totalCol - 1)? dCol: dCol + 1; 
 
-                for (let srow = startRow; srow <= endRow; srow++) {
-                    for (let scol = startCol; scol <= endCol; scol++) {
-                        const sidx = srow * totalColumn + scol;
+                    for (let row = startRow; row <= endRow; row++) {
+                        for (let col = startCol; col <= endCol; col++) {
+                            const sidx = row * this.totalCol + col;
 
-                        if (tileList[sidx].textContent !== "💣") {
-                            revealTile(sidx);
+                            if (!this.tileList[sidx].classList.contains("bomb")) {
+                                this.revealTile(sidx);
+                            }
                         }
                     }
                 }
-            }
-        }
+            },
 
-        generateEmptyBoard();
-        document.getElementById("bomb-count").textContent = totalBomb;
-        tileArea.addEventListener("click", function handler(e) {
-            if (e.target.classList.contains("tile")) {
-                const idx = Array.from(tileArea.querySelectorAll(".tile")).indexOf(e.target);
-                initializeTileArea(idx);
-                isFirstClick = false;
-                revealTile(idx);
-                tileArea.removeEventListener("click", handler);
+            initializeTileArea(idx) {
+                const tile = this.tileList[idx];
+                const row = parseInt(tile.getAttribute("data-row"));
+                const col = parseInt(tile.getAttribute("data-col"));
+                this.setStartTiles(row, col);
+                this.setBombTiles();
+            },
+
+            start() {
+                this.setBoardData();
+                this.generateEmptyBoard();
+                document.getElementById("bomb-count").textContent = this.totalBomb;
+
+                this.tileList.forEach((tile, idx) => {
+                    tile.addEventListener("click", (e) => {
+                        if (this.isFirstClick) {
+                            this.initializeTileArea(idx);
+                            this.isFirstClick = false;
+                            this.revealTile(idx);
+                        }
+                    });
+                });
             }
-        });
+        };
+
+        GameManager.start();
     </script>
 </body>
 </html>
