@@ -100,6 +100,7 @@
     </div>
     
     <script>
+        const smileyButton = document.getElementById("smiley");
         const tileArea = document.querySelector(".tile-area");
 
         /** @param {Array} array */
@@ -162,6 +163,7 @@
                     });
                     this.totalFlag = this.totalBomb;
                     this.displayBombCount();
+                    smileyButton.textContent = "😎";
                 }
             },
 
@@ -205,6 +207,7 @@
                             this.bombTiles.forEach(bidx => this.revealTile(bidx))
                             this.isGameOver = true;
                             this.isPlayerWin = false;
+                            smileyButton.textContent = "😵";
                             return;
                         }
                         this.revealTile(idx);
@@ -357,8 +360,9 @@
             }
         };
 
-        document.getElementById("smiley").addEventListener("click", () => {
+        smileyButton.addEventListener("click", () => {
             GameManager.start();
+            smileyButton.textContent = "🙂";
         });
 
         GameManager.setMode("beginner");
