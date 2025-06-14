@@ -13,13 +13,14 @@
             width: 32px;
             height: 32px;
             border: 1px solid rgb(151, 151, 120);
+            font-size: 17px;
             font-weight: 700;
             text-align: center;
             position: relative;
             user-select: none;
         }
 
-        .bomb {
+        .bomb.active {
             background-color: red;
         }
 
@@ -48,7 +49,7 @@
 
         #game-container {
             display: inline-block;
-            padding: 5px;
+            padding: 10px;
             background-color: lightgray;
             border: 3px outset;
         }
@@ -223,7 +224,8 @@
                     tile.addEventListener("click", (e) => {
                         if (this.isFirstClick || this.isGameOver) return;
                         if (tile.querySelector('.flag')) return;
-                        if (this.tileList[idx].classList.contains("bomb")) {
+                        if (tile.classList.contains("bomb")) {
+                            tile.classList.add("active");
                             this.bombTiles.forEach(bidx => this.revealTile(bidx))
                             this.isGameOver = true;
                             this.isPlayerWin = false;
