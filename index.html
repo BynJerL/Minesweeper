@@ -75,7 +75,6 @@
 </head>
 <body>
     <div id="game-container">
-        <div>Total Bombs: <span id="bomb-count"></span></div>
         <div id="top-bar">
             <div id="bomb-display" class="number-display">010</div>
             <button id="smiley">🙂</button>
@@ -292,6 +291,7 @@
             },
 
             start() {
+                this.isFirstClick = true;
                 this.setBoardData();
                 this.generateEmptyBoard();
                 this.displayBombCount();
@@ -307,6 +307,10 @@
                 });
             }
         };
+
+        document.getElementById("smiley").addEventListener("click", () => {
+            GameManager.start();
+        });
 
         GameManager.setMode("easy");
         GameManager.start();
