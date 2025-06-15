@@ -239,6 +239,7 @@
 
                     tile.addEventListener("contextmenu", (e) => {
                         e.preventDefault();
+                        if (this.isFirstClick) return;
                         if (this.isGameOver) return;
                         if (!tile.classList.contains("hidden")) return;
 
