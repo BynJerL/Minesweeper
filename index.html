@@ -100,6 +100,8 @@
             height: 32px;
             font-size: 19px;
             display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 0;
             background-color: lightgrey;
             border: 3px outset whitesmoke;
@@ -137,7 +139,6 @@
         </div>
         <table class="tile-area"></table>
     </div>
-    <div><em>*Note: Not optimized for phone</em></div>
     
     <script>
         const smileyButton = document.getElementById("smiley");
@@ -272,6 +273,22 @@
                             tile.appendChild(flagSpan);
                         }
                         this.displayBombCount();
+                    });
+
+                    tile.addEventListener("mousedown", (e) => {
+                        if (this.isGameOver) return;
+                        if (e.button === 0 && tile.querySelector('.flag')) {
+                            smileyButton.textContent = "😲";
+                        }
+                    });
+
+                    tile.addEventListener("mouseup", (e) => {
+                        if (this.isGameOver) return;
+                        smileyButton.textContent = "🙂";
+                    });
+                    tile.addEventListener("mouseleave", (e) => {
+                        if (this.isGameOver) return;
+                        smileyButton.textContent = "🙂";
                     });
                 });
             },
