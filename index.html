@@ -161,14 +161,10 @@
                 const bombCount = this.totalBomb - this.totalFlag;
 
                 let text = "";
-                if (bombCount >= 0 && bombCount < 10) {
-                    text = `00${bombCount}`;
-                } else if (bombCount < 100) {
-                    text = `0${bombCount}`;
-                } else if (bombCount > -10) {
-                    text = `-0${-bombCount}`;
+                if (bombCount >= 0) {
+                    text = bombCount.toString().padStart(3, '0');
                 } else {
-                    text = bombCount;
+                    text = "-" + Math.abs(bombCount).toString().padStart(2, "0")
                 }
 
                 bombDisplay.textContent = text;
