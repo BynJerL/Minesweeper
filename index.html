@@ -165,6 +165,30 @@
             startTiles: [],
             bombTiles: [],
             tileList: [],
+            timer: 0,
+            timerInterval: null,
+
+            startTimer() {
+                if (this.timerInterval) return;
+                this.timer = 0;
+                this.updateTimerDisplay();
+                this.timerInterval = setInterval(() => {
+                    if (!this.isGameOver) {
+                        this.timer++;
+                        this.updateTimerDisplay();
+                    }
+                }, 1000);
+            },
+            
+            stopTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null; 
+            },
+
+            updateTimerDisplay() {
+                const timerDisplay = document.getElementById("timer-display");
+                timerDisplay.textContent = this.timer.toString().padStart(3, "0");
+            },
 
             /** @param {string} mode*/ 
             setMode (mode) {
@@ -190,6 +214,7 @@
                 if (hiddenTiles.length === this.totalBomb) {
                     this.isGameOver = true;
                     this.isPlayerWin = true;
+                    this.stopTimer();
                     hiddenTiles.forEach(tile => {
                         if (!tile.querySelector(".flag")) {
                             const flagSpan = document.createElement('span');
@@ -247,6 +272,7 @@
                             tile.classList.add("active");
                             this.bombTiles.forEach(bidx => this.revealTile(bidx))
                             this.isGameOver = true;
+                            this.stopTimer();
                             this.isPlayerWin = false;
                             smileyButton.textContent = "😵";
                             return;
@@ -403,6 +429,9 @@
                 this.isGameOver = false;
                 this.isPlayerWin = false;
                 this.totalFlag = 0;
+                this.timer = 0;
+                this.stopTimer();
+                this.updateTimerDisplay();
                 this.setBoardData();
                 this.generateEmptyBoard();
                 this.displayBombCount();
@@ -412,6 +441,7 @@
                         if (this.isFirstClick) {
                             this.initializeTileArea(idx);
                             this.isFirstClick = false;
+                            this.startTimer();
                             this.revealTile(idx);
                         }
                     });
