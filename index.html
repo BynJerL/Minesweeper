@@ -13,14 +13,26 @@
         }
 
         .tile {
-            width: 32px;
-            height: 32px;
+            width: 25px;
+            height: 25px;
             border: 1px solid rgb(151, 151, 120);
-            font-size: 17px;
-            font-weight: 700;
-            text-align: center;
+            font-size: 8px;
+            box-sizing: border-box;
             position: relative;
             user-select: none;
+        }
+
+        .tile-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
 
         .bomb.active {
@@ -41,8 +53,6 @@
             background-color: lightgray;
             color: transparent;
             cursor: pointer;
-            width: 24px;
-            height: 24px;
             border: 5px outset;
         }
 
@@ -97,7 +107,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            font-size: 22px;
+            font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -215,6 +225,9 @@
                         tileCol.className = "tile hidden";
                         tileCol.setAttribute("data-row", row);
                         tileCol.setAttribute("data-col", col);
+                        const content = document.createElement("div");
+                        content.className = "tile-content";
+                        tileCol.appendChild(content);
                         tileRow.appendChild(tileCol);
                     }
                     tileArea.appendChild(tileRow);
@@ -294,10 +307,10 @@
 
                     if (this.bombTiles.includes(dIdx)) {
                         tile.classList.add("bomb");
-                        tile.textContent = "⚫";
+                        tile.querySelector('.tile-content').textContent = "⚫";
                     } else {
                         tile.classList.remove("bomb");
-                        tile.textContent = "";
+                        tile.querySelector('.tile-content').textContent = "";
                     }
                 });
 
@@ -323,7 +336,7 @@
                         }
                     }
 
-                    tile.textContent = (bombNearby)? bombNearby: "";
+                    tile.querySelector('.tile-content').textContent = (bombNearby)? bombNearby: "";
                     tile.classList.add(`num${bombNearby}`);
                 });
             },
@@ -335,7 +348,7 @@
 
                 currentTile.classList.remove("hidden");
 
-                if (currentTile.textContent === "") {
+                if (currentTile.querySelector('.tile-content').textContent === "") {
                     const dRow = parseInt(currentTile.getAttribute("data-row"));
                     const dCol = parseInt(currentTile.getAttribute("data-col"));
 
